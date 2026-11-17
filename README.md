@@ -1,4 +1,4 @@
-<img width="2064" height="512" alt="cover-bg" src="https://github.com/user-attachments/assets/939203ef-e3a6-4379-8f25-3433c126f359" />
+<img width="2064" height="512" alt="cover-bg" src="https://github.com/user-attachments/assets/afb8c80d-6d3f-4621-a19e-f10e9912fb4c" />
 
 # GTekSD Movie Streamer
 
