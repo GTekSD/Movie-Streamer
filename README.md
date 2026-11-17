@@ -1,160 +1,98 @@
 <img width="2064" height="512" alt="cover-bg" src="https://github.com/user-attachments/assets/afb8c80d-6d3f-4621-a19e-f10e9912fb4c" />
-
 # GTekSD Movie Streamer
 
-A lightweight, zero-dependency Python media server that lets you stream local movies and video folders from your Windows PC to Android phones, Android TVs, Smart TVs, iPhones, and iPads over your local Wi-Fi—**without complex SMB permissions, Windows account passwords, or manual filename typing**.
+![Version](https://img.shields.io/badge/version-1.7-58a6ff?style=flat-square)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Python%203-238636?style=flat-square)
+![Dependencies](https://img.shields.io/badge/dependencies-Zero%20(Stdlib%20Only)-8b949e?style=flat-square)
+
+**GTekSD Movie Streamer** is a lightweight, zero-dependency local media server with a compact dark-mode desktop GUI. Stream your local movie and video folders effortlessly across your home Wi-Fi or LAN to Smart TVs, Android devices, iPhones/iPads, and web browsers using **HTTP**, **WebDAV**, and **DLNA / UPnP**.
+
+---
 
 ## Features
 
-* **Zero External Dependencies:** Built 100% with Python 3's standard library—no `pip install` required.
+* **Multi-Protocol Streaming Engine:**
+  * **DLNA / UPnP Auto-Discovery (SSDP):** Automatically advertises your shared folder on your local network so Smart TVs and mobile players detect it with zero manual IP entry.
+  * **HTTP/1.1 Byte-Range Streaming:** Supports `206 Partial Content` and `ETag` caching for smooth playback and instant seeking/scrubbing on large video files.
+  * **WebDAV Support (`PROPFIND` / `OPTIONS`):** Browse folders natively from iOS and mobile media apps.
+  * **Auto-Generated M3U Playlist (`/playlist.m3u`):** Dynamically builds a playable network stream playlist of all videos in your selected folder and subfolders.
+* **Compact Dark-Mode GUI & Native System Tray:**
+  * Clean dark interface with Windows dark title bar and High-DPI scaling support.
+  * Native 64-bit-safe Windows system tray integration with **Close to Tray**, balloon notifications, and quick-access controls (Start/Stop, Open in Browser, Copy Stream URL).
+  * Built-in **Client Guide** tabs with ready-to-use URLs and instructions for Android, TV, iOS, and browsers.
+* **Zero External Runtime Dependencies:** Built entirely on the Python 3 standard library—and available as a single standalone `GTekSD Movie Streamer.exe`.
 
-* **DLNA / UPnP Auto-Discovery:** Broadcasts itself via SSDP multicast (`239.255.255.250:1900`) so Android, Android TV, and Smart TV players automatically discover and browse your library with zero typing.
+### Supported Video Formats
+`.mkv` • `.mp4` • `.avi` • `.mov` • `.m4v` • `.webm` • `.ts` • `.m2ts` • `.wmv` • `.flv` • `.mpg` • `.mpeg`
 
-* **Fast HTTP Byte-Range Streaming:** Supports `206 Partial Content`, `ETag`, `Last-Modified`, and `If-Range` with 256 KiB chunking for instant scrubbing/seeking in large `.mkv` and `.mp4` files.
-
-* **Read-Only WebDAV Server:** Implements `OPTIONS` and `PROPFIND` (`207 Multi-Status`) so apps like KMPlayer on iOS and Android can browse folders natively without credentials.
-
-* **Dynamic M3U Playlist (`/playlist.m3u`):** Automatically indexes all supported video files (including subfolders) into a single playlist URL for one-tap queueing in VLC and KMPlayer on iOS.
-
-* **Smart LAN IP Detection:** Automatically selects your active Wi-Fi/Ethernet IPv4 address while ignoring loopback (`127.x`), link-local (`169.254.x`), and VirtualBox Host-Only (`192.168.56.x`) adapters.
-
-* **Rotating Debug Logging:** Writes thread-safe debug logs to `movie_server.log` (5 MiB rotation, 3 backups), silences missing subtitle-probe (`404`) spam in the console, and cleanly handles player socket disconnects.
-
-## Requirements
-
-* **Python 3.8+** (tested on Python 3.13 on Windows 11)
-
-* Server PC and client devices connected to the **same local Wi-Fi / LAN** (with no VPN or router guest-isolation blocking local traffic)
+---
 
 ## Quick Start
 
-1. Place `movie_server.py` inside the folder containing your movies (or pass any folder path as an argument).
+### Option 1: Standalone Windows Executable (Recommended)
+1. Go to the **[Releases](../../releases)** page and download **`GTekSD Movie Streamer.exe`**.
+2. Double-click **`GTekSD Movie Streamer.exe`** to launch the app (no Python installation required).
+3. When prompted by **Windows Defender Firewall**, check **Private networks** and click **Allow access**.
+4. Click **Browse** to select your video folder, verify your **LAN IP** and **Port** (default `8000`), and click **▶ Start**.
 
-2. Open PowerShell or Command Prompt and run:
-
-```
-# Share the current directory on default port 8000
-python .\movie_server.py
-
-# Share a specific folder
-python .\movie_server.py "C:\Users\suhas\Videos\MOVIE"
-
-# Share on a custom port
-python .\movie_server.py "C:\Users\suhas\Videos\MOVIE" -p 9000
-
+### Option 2: Run from Python Source
+Requires **Python 3.8+** (no `pip install` packages required):
+```bash
+git clone https://github.com/GTekSD/Movie-Streamer.git
+cd Movie-Streamer
+python movie_server.py
 ```
 
-3. Keep the terminal window open while watching. Press `CTRL + C` to stop the server cleanly.
+---
 
-### CLI Options
+## Connecting Your Devices
 
-| Flag / Argument | Default | Description | 
-| ----- | ----- | ----- | 
-| `folder` | `.` (current folder) | Directory to expose on your local network. | 
-| `-p`, `--port` | `8000` | TCP port for HTTP, WebDAV, M3U, and DLNA control. | 
-| `--log-file <path>` | `./movie_server.log` | Custom path for the rotating debug log file. | 
-| `--debug` | `False` | Also print verbose `DEBUG` logs live in the terminal. | 
-| `--no-log` | `False` | Disable writing logs to disk. | 
+Make sure your phone, tablet, or TV is connected to the **same Wi-Fi / LAN** as your PC, and ensure your PC's Wi-Fi profile in Windows is set to **Private** (not Public).
 
-## One-Time Windows Firewall Setup
+### Android / Smart TV (DLNA / UPnP)
+Your server appears automatically as **`GTekSD Movie Streamer (<PC-Name>)`**:
+* **VLC for Android / TV:** `Browse` → `Local Network` → select **`GTekSD Movie Streamer`**
+* **KMPlayer:** `Network` → auto-discovered **UPnP** device → **`GTekSD Movie Streamer`**
+* **NOVA Video Player:** `Network & Files` → `Network` → `Media server (UPnP)` → **`GTekSD Movie Streamer`**
 
-If your phone or TV cannot see or connect to the server, Windows Defender Firewall is likely blocking incoming traffic on your Wi-Fi network (or your Wi-Fi profile is set to **Public** instead of **Private**).
+### iPhone / iPad (WebDAV or Network Stream)
+* **KMPlayer (WebDAV):** `Network` → `Add (+)` → `WEBDAV` → enter your PC's **LAN IP** and **Port** (`8000`)
+* **KMPlayer (M3U Stream):** `URL Playback` → `http://<PC_IP>:8000/playlist.m3u`
+* **VLC for iOS:** `Network` → `Open Network Stream` → `http://<PC_IP>:8000/playlist.m3u`
 
-Open **PowerShell as Administrator** on your PC and run these three commands once:
+### Web Browser / Direct Links
+* **Folder Browser:** `http://<PC_IP>:8000/`
+* **Full M3U Playlist:** `http://<PC_IP>:8000/playlist.m3u`
+* **Direct Video File:** `http://<PC_IP>:8000/<filename.mkv>`
 
-```
-# 1. Set your active network connection profile to Private
-Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private
+---
 
-# 2. Allow inbound TCP port 8000 (HTTP streaming, WebDAV, and M3U playlists)
-New-NetFirewallRule -DisplayName "GTekSD Movie Streamer (HTTP)" -Direction Inbound -Protocol TCP -LocalPort 8000 -Action Allow -Profile Private
+## Command-Line Options
 
-# 3. Allow inbound UDP port 1900 (DLNA / UPnP auto-discovery)
-New-NetFirewallRule -DisplayName "GTekSD Movie Streamer (DLNA)" -Direction Inbound -Protocol UDP -LocalPort 1900 -Action Allow -Profile Private
+You can launch either `GTekSD Movie Streamer.exe` or `python app.py` with optional CLI flags (useful for Windows Startup shortcuts):
 
-```
+| Argument | Description |
+| :--- | :--- |
+| `[folder]` | Optional path to the media folder to share on launch |
+| `-p`, `--port <number>` | Set the HTTP/WebDAV port (default: `8000`) |
+| `--autostart` | Automatically start streaming as soon as the app launches |
+| `--minimized` | Launch minimized directly into the Windows system tray |
+| `--debug` | Enable verbose debug logging in the GUI and log file |
+| `--no-log` | Disable writing the rotating `movie_server.log` file to disk |
 
-*(If you run the server on a custom port with `-p`, update `-LocalPort` in rule #2 accordingly.)*
-
-## How to Connect from Your Devices
-
-Replace `<PC_IP>` and `<PORT>` with the values printed in the startup banner (for example, `192.168.1.11` and `8000`).
-
-### Android & Android TV (UPnP — Zero Typing, No Password)
-
-Recommended apps: **NOVA Video Player**, **VLC for Android**, or **KMPlayer**.
-
-* **NOVA Video Player:**
-  `Network & Files` → `Network` → `Media server (UPnP)` → **`GTekSD Movie Streamer (<Hostname>)`**
-
-* **VLC for Android:**
-  `Browse` → `Local Network` → **`GTekSD Movie Streamer (<Hostname>)`**
-
-* **KMPlayer:**
-  `Network` → `Auto-discovered UPnP` → **`GTekSD Movie Streamer (<Hostname>)`**
-
-### iOS (iPhone / iPad)
-
-* **KMPlayer (Folder Browsing via WebDAV):**
-
-  1. Open `Network` → tap **`Add (+)`** → choose **`WEBDAV`**
-
-  2. **Host / IP:** `<PC_IP>` *(enter the IP only — do not include `http://` or `:8000`)*
-
-  3. **Port:** `8000`
-
-  4. **User ID / Password:** Leave blank and save.
-
-* **KMPlayer (Playlist / Direct URL):**
-  Open `Network` → `URL Playback` → enter `http://<PC_IP>:8000/playlist.m3u` (or `http://<PC_IP>:8000/movie.mkv`).
-
-* **VLC for iOS:**
-  Open `Browse` → `Open Network Stream` → enter `http://<PC_IP>:8000/playlist.m3u` to load all videos into VLC's playlist queue, or paste a direct file URL.
-
-### Web Browser (Any Device)
-
-* **Folder Directory:** `http://<PC_IP>:8000/`
-
-* **M3U Playlist:** `http://<PC_IP>:8000/playlist.m3u`
-
-## Supported Media Formats
-
-The DLNA catalog and `/playlist.m3u` generator automatically index the following file extensions (case-insensitive):
-
-`.mkv`, `.mp4`, `.avi`, `.mov`, `.m4v`, `.webm`, `.ts`, `.m2ts`, `.wmv`, `.flv`, `.mpg`, `.mpeg`
-
-*(Direct HTTP downloads and WebDAV browsing serve all files in the shared folder, including external subtitle files like `.srt`, `.ass`, and `.vtt`.)*
-
-## Logging & Debugging
-
-Every run automatically writes detailed `DEBUG` logs to `movie_server.log` (up to **5 MiB** per file with **3** rotated backups).
-
-To watch live debug logs in a second PowerShell window:
-
-```
-Get-Content .\movie_server.log -Wait -Tail 30
-
+**Example (Silent Auto-Start in System Tray):**
+```bash
+"GTekSD-Movie-Streamer.exe" "D:\Movies" -p 8000 --autostart --minimized
 ```
 
-Or print verbose debug output directly in the main server console:
+---
 
-```
-python .\movie_server.py --debug
+## Configuration & Logs
 
-```
+* **Saved Settings:** Automatically stored in `~/.gteksd_movie_streamer.json` (remembers your last shared folder, port, logging toggles, and tray preference).
+* **Activity Logs:** When **Save Log** is enabled, rotating logs (up to 5 MB × 3 backups) are saved to `movie_server.log` in the application directory.
 
-## Troubleshooting
-
-| Symptom | Cause & Fix | 
-| ----- | ----- | 
-| Nothing appears in `movie_server.log` when connecting from phone/TV | Traffic is blocked before reaching Python. Run the **Windows Firewall** commands above, verify both devices are on the same Wi-Fi band/subnet, and disable any active VPN. | 
-| Server prints a `192.168.56.x` VirtualBox IP | `v1.6` automatically filters out `192.168.56.*`. If you use another virtual adapter (VMware/WSL), check `ipconfig` for your Wi-Fi adapter's IPv4 address. | 
-| `Could not start server on port 8000` | Another app is already using port `8000`. Run with `-p 8080` (or any free port). | 
-| Server not showing in UPnP list on Android/TV | Ensure UDP port `1900` is allowed in Windows Firewall and that your Wi-Fi router does not block multicast / IGMP traffic. | 
-
-## Security Notice
-
-This server is designed for trusted **home local networks (LAN)** and intentionally requires no authentication. Only share folders you are comfortable exposing to devices connected to your Wi-Fi, and close the terminal window when finished.
+---
 
 ## License
 
