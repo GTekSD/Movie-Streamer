@@ -1,6 +1,6 @@
-# GTekSD Movie Streamer (`v1.6`)
+<img width="2064" height="512" alt="cover-bg" src="https://github.com/user-attachments/assets/939203ef-e3a6-4379-8f25-3433c126f359" />
 
-> **Breaking things so you don't have to find out the hard way 🔓**
+# GTekSD Movie Streamer
 
 A lightweight, zero-dependency Python media server that lets you stream local movies and video folders from your Windows PC to Android phones, Android TVs, Smart TVs, iPhones, and iPads over your local Wi-Fi—**without complex SMB permissions, Windows account passwords, or manual filename typing**.
 
